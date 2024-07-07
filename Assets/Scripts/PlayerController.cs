@@ -1,158 +1,212 @@
+using System.Collections;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    //PlayerMovenment
-    [Header("Player Movenment")]
-    [SerializeField] private float speed = 5f;
-    private float xAxis;
+    [Header("Movement Settings:")]
+    [SerializeField] private float moveSpeed = 5f; // Toc do di chuyen
+    private float xAxis; // Bien luu gia tri di chuyen theo truc x
+    private float gravity;
+    [Space(5)]
 
-    //Player Jumping
-    [Header("Player Jumping")]
-    [SerializeField] private float jumpForce = 14f;
+    [Header("Ground Check Settings:")]
+    [SerializeField] private Transform checkGroundPoint; // Diem kiem tra dat
+    [SerializeField] private float checkGroundX = 0.2f; // Khoang cach kiem tra dat theo truc x
+    [SerializeField] private float checkGroundY = 0.5f; // Khoang cach kiem tra dat theo truc y
+    [SerializeField] private LayerMask groundCheck; // Lop de kiem tra dat
+    [Space(5)]
 
-    //PlayerAttack
-    [Header("Player Attack")]
-    [SerializeField] private Transform attackPoint;
-    [SerializeField] private LayerMask enemyLayers;
-    [SerializeField] private float attackRange = 0.5f;
-    [SerializeField] private float attackRate = 1f;
-    [SerializeField] private float nextAttackTime = 0f;
+    [Header("Jump Settings")]
+    [SerializeField] private float addForce = 14f; // Luc nhay
+    private int jumpBufferCounter = 0; // Dem thoi gian cho phep nhay
+    [SerializeField] private int jumpBufferFrames = 10; // So frame cho phep nhay
+    private float coyoteTimeCounter = 0;
+    [SerializeField] private float coyoteTime;
+    private int airJumpCounter = 0;
+    [SerializeField] private int maxAirJump;
+    [Space(5)]
 
-    //HP Player
-    [Header("Player Damage")]
-    [SerializeField] private int attackDamage = 2;
-    
+    [Header("Dash Settings:")]
+    [SerializeField] private float speedDash;
+    [SerializeField] private float dashTime;
+    [SerializeField] private float dashCoolDown;
+    private bool canDash = true;
+    private bool dashed;
+    [Space(5)]
 
-    //Check IsGrounded
-    [SerializeField] private LayerMask groundLayer;
+    [Header("DashEffect Settings:")]
+    [SerializeField] private GameObject dashEffect;
+    [Space(5)]
 
-    //Khoi tao bien logic
-    private PlayerHealth playerHealth;
-    private EnemyController enemyController;
+    // Singleton
+    public static PlayerController instance;
+    private void Awake()
+    {
+        if (instance != null && instance != this)
+        {
+            Destroy(gameObject); // Huy doi tuong neu da ton tai instance khac
+        }
+        else
+        {
+            instance = this; // Gan instance hien tai
+        }
+    }
+
+    private PlayStateList pState;
     private Rigidbody2D rb;
     private Animator anim;
-
     private void Start()
     {
-        rb = GetComponent<Rigidbody2D>();
-        enemyController = GetComponent<EnemyController>();  
-        anim = GetComponent<Animator>();
-        playerHealth = GetComponent<PlayerHealth>();
+        rb = GetComponent<Rigidbody2D>(); // Lay component Rigidbody2D
+        anim = GetComponent<Animator>(); // Lay component Animator
+        pState = GetComponent<PlayStateList>(); // Lay component PlayStateList
+        gravity = rb.gravityScale;
     }
 
     private void Update()
     {
-        InputMove();
-        Movement();
-        Flip();
-        Jump();
-        InputAttack();
-        Die();
-        
+        GetInputs(); // Lay du lieu tu ban phim
+        UpdateJump(); // Cap nhat trang thai nhay
+        if (pState.dashing) return;
+        Flip(); // Lat huong nhan vat
+        Move(); // Di chuyen
+        Jump(); // Thuc hien nhay
+        StartDash();
     }
-    //Quay nhan vat theo huong di chuyen
+
+    //Input
+    private void GetInputs()
+    {
+        if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
+        {
+            xAxis = -1; // Di chuyen sang trai
+        }
+        else if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
+        {
+            xAxis = 1; // Di chuyen sang phai
+        }
+        else
+        {
+            xAxis = 0; // Dung lai
+        }
+    }
+
+    // Player Move
+    private void Move()
+    {
+        rb.velocity = new Vector2(xAxis * moveSpeed, rb.velocity.y); // Cap nhat toc do di chuyen
+        anim.SetBool("Running", rb.velocity.x != 0 && Grounded()); // Cap nhat hoat hinh chay
+    }
+
+    //Player Flip
     private void Flip()
     {
-        if(xAxis < 0)
+        if (xAxis < 0)
         {
-            transform.localScale = new Vector2(-1, transform.localScale.y);
+            transform.localScale = new Vector3(-1, 1, 1); // Lat huong sang trai
+        }
+        else if (xAxis > 0)
+        {
+            transform.localScale = new Vector3(1, 1, 1); // Lat huong sang phai
+        }
+    }
+
+    //Check Ground
+    public bool Grounded()
+    {
+        // Kiem tra xem nhan vat co dang dung tren mat dat hay khong
+        if (Physics2D.Raycast(checkGroundPoint.position, Vector2.down, checkGroundY, groundCheck)
+            || Physics2D.Raycast(checkGroundPoint.position + new Vector3(-checkGroundX, 0, 0), Vector2.down, checkGroundY, groundCheck)
+            || Physics2D.Raycast(checkGroundPoint.position + new Vector3(checkGroundX, 0, 0), Vector2.down, checkGroundY, groundCheck))
+        {
+            return true; // Nhan vat dang dung tren dat
         }
         else
         {
-            transform.localScale = new Vector2(1, transform.localScale.y);
+            return false; // Nhan vat khong dung tren dat
         }
     }
-    //Ham di chuyen nhan vat
-    private void Movement()
-    {
-        rb.velocity = new Vector2(xAxis * speed, rb.velocity.y);
-        anim.SetBool("Running", rb.velocity.x != 0);
-    }
-    //Ham nhan gia tri tu ban phim
-    private void InputMove()
-    {
-        xAxis = Input.GetAxisRaw("Horizontal");
-    }
-    private void InputAttack()
-    {
-        if (Time.time > nextAttackTime)
-        {
 
-            if (Input.GetMouseButtonDown(0))
-            {
-                Attack();
-                nextAttackTime = Time.time + 1f / attackRate;
-            }
-        }
-    }
-    //Ham nhay
+    //Jump
     private void Jump()
     {
-        if ((Input.GetButtonDown("Jump") || Input.GetKeyDown(KeyCode.UpArrow)) && IsGrounded())
+        if ((Input.GetKeyUp(KeyCode.Space) || Input.GetKeyUp(KeyCode.UpArrow)) && rb.velocity.y > 0)
         {
-            rb.velocity = new Vector3(rb.velocity.x, jumpForce);
+            rb.velocity = new Vector2(rb.velocity.x, 0);
+            pState.jumping = false;
         }
-        anim.SetBool("Jumping", !IsGrounded());
-        if (!IsGrounded() && rb.velocity.y < 0)
+
+        if (!pState.jumping)
         {
-            anim.SetBool("Falling", true);
+            if (jumpBufferCounter > 0 && coyoteTimeCounter > 0)
+            {
+                rb.velocity = new Vector3(rb.velocity.x, addForce);
+
+                pState.jumping = true;
+
+                jumpBufferCounter = 0;
+            }
+            else if (!Grounded() && airJumpCounter < maxAirJump && (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.UpArrow)))
+            {
+                pState.jumping = true;
+
+                airJumpCounter++;
+
+                rb.velocity = new Vector3(rb.velocity.x, addForce);
+            }
+        }
+        anim.SetBool("Jumping", !Grounded());
+    }
+
+    private void UpdateJump()
+    {
+        if (Grounded())
+        {
+            pState.jumping = false;
+
+            coyoteTimeCounter = coyoteTime;
+
+            airJumpCounter = 0;
         }
         else
         {
-            anim.SetBool("Falling", false);
+            coyoteTimeCounter -= Time.deltaTime;
         }
-    }
-    //Ham check IsGround
-    private bool IsGrounded()
-    {
-        Vector2 position = transform.position;
-        Vector2 direction = Vector2.down;
-        float distance = 1.0f;
 
-        RaycastHit2D hit = Physics2D.Raycast(position, direction, distance, groundLayer);
-        if(hit.collider != null)
+        if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.UpArrow))
         {
-            return true;
+            jumpBufferCounter = jumpBufferFrames;
         }
-        return false;
-    }
-    //Ham Attack
-    private void Attack()
-    {
-        //set Aninmation
-        anim.SetTrigger("Attacking");
-        //Attack
-        Collider2D[] hitEnemics = Physics2D.OverlapCircleAll(attackPoint.position, attackRange, enemyLayers);
-
-        //Cong Damge
-        foreach(Collider2D enemy in hitEnemics)
+        else
         {
-            enemy.GetComponent<EnemyController>().TakeDamage(attackDamage);
-        }
-    }
-    //Ham ve ra vung tan cong
-    private void OnDrawGizmos()
-    {
-        if (attackPoint == null)
-            return;
-        Gizmos.DrawWireSphere(attackPoint.position, attackRange);
-    }
-    //Ham nhan sat thuong tu quai
-    public void Hurt()
-    {
-        anim.SetTrigger("Hurting");
-        
-    }
-    private void Die()
-    {
-        if (playerHealth.health <= 0)
-        {
-            anim.SetBool("IsDead", true);
-            this.enabled = false;
-            rb.simulated = false;
-            GetComponent<Collider2D>().enabled = false;
+            jumpBufferCounter--;
         }
     }
 
+    //Dash
+    private void StartDash()
+    {
+        if(Input.GetKeyDown(KeyCode.LeftShift) && canDash && !dashed)
+        {
+            StartCoroutine(Dash());
+            dashed = true;
+        }
+        if (Grounded())
+        {
+            dashed = false;
+        }
+    }
+    private IEnumerator Dash()
+    {
+        canDash = false;
+        pState.dashing = true;
+        anim.SetTrigger("Dashing");
+        rb.gravityScale = 0;
+        rb.velocity = new Vector2(transform.localScale.x * speedDash, 0);
+        yield return new WaitForSeconds(dashTime);
+        rb.gravityScale = gravity;
+        pState.dashing = false;
+        yield return new WaitForSeconds(dashCoolDown);
+        canDash = true;
+    }
 }

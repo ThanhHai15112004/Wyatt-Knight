@@ -3,17 +3,16 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags:
-  - Enemy
+  tags: []
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Player
   - Water
   - UI
   - Ground
-  - Enemy
+  - 
   - 
   - 
   - 
@@ -43,14 +42,11 @@ TagManager:
     uniqueID: 0
     locked: 0
   - name: Background
-    uniqueID: 3196822495
-    locked: 0
-  - name: River
-    uniqueID: 1324294629
+    uniqueID: 1493480735
     locked: 0
   - name: Ground
-    uniqueID: 800580587
+    uniqueID: 3801898297
     locked: 0
   - name: Player
-    uniqueID: 3330203357
+    uniqueID: 631903005
     locked: 0
