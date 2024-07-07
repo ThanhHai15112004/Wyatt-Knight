@@ -47,6 +47,9 @@ TagManager:
   - name: Ground
     uniqueID: 3801898297
     locked: 0
+  - name: Effect
+    uniqueID: 45298107
+    locked: 0
   - name: Player
     uniqueID: 631903005
     locked: 0
