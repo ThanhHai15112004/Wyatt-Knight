@@ -67,6 +67,11 @@ public class PlayerController : MonoBehaviour
     private int stepsYRecoiled;
     [Space(5)]
 
+    [Header("Health Setting")]
+    public int health;
+    public int maxHealth;
+    [Space(5)]
+
     // Singleton
     public static PlayerController instance;
     private void Awake()
@@ -79,9 +84,11 @@ public class PlayerController : MonoBehaviour
         {
             instance = this; // Gan instance hien tai
         }
+        health = maxHealth;
     }
 
-    private PlayStateList pState;
+
+    [HideInInspector] public PlayStateList pState;
     private Rigidbody2D rb;
     private Animator anim;
 
@@ -200,7 +207,7 @@ public class PlayerController : MonoBehaviour
             }
         }
         anim.SetBool("Jumping", !Grounded());
-        
+
     }
 
     private void UpdateJump()
@@ -231,7 +238,7 @@ public class PlayerController : MonoBehaviour
     //Dash
     private void StartDash()
     {
-        if(Input.GetKeyDown(KeyCode.LeftShift) && canDash && !dashed)
+        if (Input.GetKeyDown(KeyCode.LeftShift) && canDash && !dashed)
         {
             StartCoroutine(Dash());
             dashed = true;
@@ -266,27 +273,27 @@ public class PlayerController : MonoBehaviour
     //Attack
     private void Attack()
     {
-            timeSinceAttack += Time.deltaTime;
-            if (attack & timeSinceAttack > timeBetweenAttack)
+        timeSinceAttack += Time.deltaTime;
+        if (attack & timeSinceAttack > timeBetweenAttack)
+        {
+            timeSinceAttack = 0;
+            anim.SetTrigger("Attacking");
+            if (yAxis == 0 || yAxis < 0 && Grounded())
             {
-                timeSinceAttack = 0;
-                anim.SetTrigger("Attacking");
-                if (yAxis == 0 || yAxis < 0 && Grounded())
-                {
-                    Hit(sideAttackTransform, sideAttackArea, ref pState.recoilX, recoilXSpeed);
-                    Instantiate(slashObject, sideAttackTransform);
-                }
-                else if (yAxis > 0)
-                {
-                    Hit(upAttackTransform, upAttackArea, ref pState.recoilY, recoilYSpeed);
-                    SlashEffect(slashObject, 90, upAttackTransform);
-                }
-                else if (yAxis < 0 && !Grounded())
-                {
-                    Hit(downAttackTransform, downAttackArea, ref pState.recoilY, recoilYSpeed);
-                    SlashEffect(slashObject, -90, downAttackTransform);
-                }
+                Hit(sideAttackTransform, sideAttackArea, ref pState.recoilX, recoilXSpeed);
+                Instantiate(slashObject, sideAttackTransform);
             }
+            else if (yAxis > 0)
+            {
+                Hit(upAttackTransform, upAttackArea, ref pState.recoilY, recoilYSpeed);
+                SlashEffect(slashObject, 90, upAttackTransform);
+            }
+            else if (yAxis < 0 && !Grounded())
+            {
+                Hit(downAttackTransform, downAttackArea, ref pState.recoilY, recoilYSpeed);
+                SlashEffect(slashObject, -90, downAttackTransform);
+            }
+        }
     }
     //Hit
     private void Hit(Transform attackTransform, Vector2 attackArea, ref bool recoilDir, float recoilStrength)
@@ -304,6 +311,20 @@ public class PlayerController : MonoBehaviour
                     (transform.position - objectToHit[i].transform.position).normalized, recoilStrength);
             }
         }
+    }
+    //TakeDamage
+    public void TakeDamage(float damage)
+    {
+        health -= Mathf.RoundToInt(damage);
+        StartCoroutine(StopTakingDamage());
+    }
+    private IEnumerator StopTakingDamage()
+    {
+        pState.invincible = true;
+        anim.SetTrigger("Hurting");
+        ClampHealth();
+        yield return new WaitForSeconds(1f);
+        pState.invincible = false;
     }
     //SlashEffect
     private void SlashEffect(GameObject slashEffect, int effectAngle, Transform attackTransform)
@@ -378,5 +399,10 @@ public class PlayerController : MonoBehaviour
         {
             StopRecoilY();
         }
+    }
+    //Health
+    private void ClampHealth()
+    {
+        health = Mathf.Clamp(health, 0, maxHealth);
     }
 }   

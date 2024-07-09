@@ -3,19 +3,26 @@ using UnityEngine;
 public class EnemyController : MonoBehaviour
 {
     [Header("Recoil")]
-    [SerializeField] private float recoilLength;
-    [SerializeField] private float recoilFactor;
-    [SerializeField] bool isRecoling = false;
-    private float recoilTimer;
+    [SerializeField] protected float recoilLength;
+    [SerializeField] protected float recoilFactor;
+    [SerializeField] protected bool isRecoling = false;
+    protected float recoilTimer;
     [Space(5)]
 
-    private Rigidbody2D rb;
-    [SerializeField] private float health;
-    private void Awake()
+    [Header("Enemy AI")]
+    [SerializeField] protected float health;
+    [SerializeField] protected float speed;
+    [SerializeField] protected float damage;
+    [Space(5)]
+
+    protected PlayerController playerController;
+    protected Rigidbody2D rb;
+    protected virtual void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+        playerController = PlayerController.instance;
     }
-    private void Update()
+    protected virtual void Update()
     {
         if(health <= 0)
         {
@@ -34,12 +41,23 @@ public class EnemyController : MonoBehaviour
             }
         }
     }
-    public void EnemyHit(float damage, Vector2 hitDirection, float hitForce)
+    public virtual void EnemyHit(float damage, Vector2 hitDirection, float hitForce)
     {
         health -= damage;
         if(!isRecoling )
         {
             rb.AddForce(-hitForce * recoilFactor * hitDirection);
+        }
+    }
+    protected virtual void Attack()
+    {
+        PlayerController.instance.TakeDamage(damage);
+    }
+    protected void OnTriggerStay2D(Collider2D other)
+    {
+        if (other.CompareTag("Player") && !PlayerController.instance.pState.invincible)
+        {
+            Attack();
         }
     }
 }
