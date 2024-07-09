@@ -327,14 +327,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7abb73ba740305b49b6105ed9169a3b2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 6.5
+  moveSpeed: 6
   checkGroundPoint: {fileID: 8562832547827310341}
   checkGroundX: 0.2
   checkGroundY: 0.5
   groundCheck:
     serializedVersion: 2
     m_Bits: 64
-  addForce: 30
+  addForce: 27
   jumpBufferFrames: 60
   coyoteTime: 0.2
   maxAirJump: 1
@@ -343,6 +343,7 @@ MonoBehaviour:
   dashCoolDown: 0.4
   dashEffect: {fileID: 2953596746597857280, guid: 9137a098f4d22634e84af1af739f8494, type: 3}
   jumpEffect: {fileID: 7568103055894472457, guid: 1f5c4218f3e29424a8c29ece339752fc, type: 3}
+  timeBetweenAttack: 0.75
   upAttackTransform: {fileID: 5325935135798079233}
   sideAttackTransform: {fileID: 5846648033219192426}
   downAttackTransform: {fileID: 6036811212494967988}
@@ -351,8 +352,13 @@ MonoBehaviour:
   downAttackArea: {x: 1, y: -1.14}
   attackLayer:
     serializedVersion: 2
-    m_Bits: 0
-  damage: 0
+    m_Bits: 128
+  damage: 2
+  slashObject: {fileID: 8425224023228290353, guid: 4c9d1dcaea62968459a4a0d294733289, type: 3}
+  recoilXSteps: 1
+  recoilYSteps: 5
+  recoilXSpeed: 25
+  recoilYSpeed: 50
 --- !u!114 &8218890417690579672
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -367,6 +373,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   jumping: 0
   dashing: 0
+  recoilX: 0
+  recoilY: 0
+  lookingRight: 0
 --- !u!1 &8033889820679388501
 GameObject:
   m_ObjectHideFlags: 0
