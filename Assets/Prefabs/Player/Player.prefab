@@ -25,7 +25,7 @@ Transform:
   m_GameObject: {fileID: 365136521539450864}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2.5, y: 0, z: 0}
+  m_LocalPosition: {x: 1.16, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -347,11 +347,12 @@ MonoBehaviour:
   sideAttackTransform: {fileID: 5846648033219192426}
   downAttackTransform: {fileID: 6036811212494967988}
   upAttackArea: {x: 1, y: 1.5}
-  sideAttackArea: {x: 3, y: 2.07}
+  sideAttackArea: {x: 5.01, y: 2.07}
   downAttackArea: {x: 1, y: -1.14}
   attackLayer:
     serializedVersion: 2
     m_Bits: 0
+  damage: 0
 --- !u!114 &8218890417690579672
 MonoBehaviour:
   m_ObjectHideFlags: 0
