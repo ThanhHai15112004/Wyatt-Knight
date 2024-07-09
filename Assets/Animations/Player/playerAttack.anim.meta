@@ -1,9 +1,5 @@
 fileFormatVersion: 2
-<<<<<<<< Updated upstream:Assets/Animations/Player/playerAttack.anim.meta
 guid: 5aacb7aec64281e4b95300bd238bc657
-========
-guid: 1b7e351508e71c74ea880ca22083158e
->>>>>>>> Stashed changes:Assets/Animations/Player/playerDash.anim.meta
 NativeFormatImporter:
   externalObjects: {}
   mainObjectFileID: 7400000

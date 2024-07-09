@@ -6,6 +6,7 @@ public class PlayerController : MonoBehaviour
     [Header("Movement Settings:")]
     [SerializeField] private float moveSpeed = 5f; // Toc do di chuyen
     private float xAxis; // Bien luu gia tri di chuyen theo truc x
+    private float yAxis;
     private float gravity;
     [Space(5)]
 
@@ -39,6 +40,20 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private GameObject jumpEffect;
     [Space(5)]
 
+    [Header("Attack Settings:")]
+    private bool attack = false;
+    private float timeBetweenAttack;
+    private float timeSinceAttack;
+    [SerializeField] private Transform upAttackTransform;
+    [SerializeField] private Transform sideAttackTransform;
+    [SerializeField] private Transform downAttackTransform;
+    [SerializeField] private Vector2 upAttackArea;
+    [SerializeField] private Vector2 sideAttackArea;
+    [SerializeField] private Vector2 downAttackArea;
+    [SerializeField] private LayerMask attackLayer;
+    [SerializeField] private float damage;
+    [Space(5)]
+
     // Singleton
     public static PlayerController instance;
     private void Awake()
@@ -66,18 +81,21 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        GetInputs(); // Lay du lieu tu ban phim
+        GetInputMove(); // Lay du lieu tu ban phim
+        GetInputAttack();
         UpdateJump(); // Cap nhat trang thai nhay
         if (pState.dashing) return;
         Flip(); // Lat huong nhan vat
         Move(); // Di chuyen
         Jump(); // Thuc hien nhay
         StartDash();
+        Attack();
     }
 
     //Input
-    private void GetInputs()
+    private void GetInputMove()
     {
+        yAxis = Input.GetAxisRaw("Vertical");
         if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
         {
             xAxis = -1; // Di chuyen sang trai
@@ -90,6 +108,10 @@ public class PlayerController : MonoBehaviour
         {
             xAxis = 0; // Dung lai
         }
+    }
+    private void GetInputAttack()
+    {
+        attack = Input.GetMouseButton(0);
     }
 
     // Player Move
@@ -216,4 +238,51 @@ public class PlayerController : MonoBehaviour
         yield return new WaitForSeconds(dashCoolDown);
         canDash = true;
     }
+    //Gizmos Attack
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireCube(sideAttackTransform.position, sideAttackArea);
+        Gizmos.DrawWireCube(upAttackTransform.position, upAttackArea);
+        Gizmos.DrawWireCube(downAttackTransform.position, downAttackArea);
+    }
+    //Attack
+    private void Attack()
+    {
+        timeSinceAttack += Time.deltaTime;
+        if(attack & timeSinceAttack > timeBetweenAttack)
+        {
+            timeSinceAttack = 0;
+            anim.SetTrigger("Attacking");
+            if(yAxis == 0 || yAxis < 0 && Grounded())
+            {
+                Hit(sideAttackTransform, sideAttackArea);
+            }
+            else if(yAxis > 0)
+            {
+                Hit(upAttackTransform, upAttackArea);
+            }
+            else if(yAxis < 0 && !Grounded())
+            {
+                Hit(downAttackTransform, downAttackArea);
+            }
+        }
+    }
+    //Hit
+    private void Hit(Transform attackTransform, Vector2 attackArea)
+    {
+        Collider2D[] objectToHit = Physics2D.OverlapBoxAll(attackTransform.position, attackArea, 0, attackLayer);
+        if (objectToHit.Length > 0)
+        {
+            Debug.Log("Hit");
+        }
+        for (int i = 0; i < objectToHit.Length; i++)
+        {
+            if (objectToHit[i].GetComponent<EnemyController>() != null)
+            {
+                objectToHit[i].GetComponent<EnemyController>().EnemyHit(damage);
+            }
+        }
+    }
+
 }

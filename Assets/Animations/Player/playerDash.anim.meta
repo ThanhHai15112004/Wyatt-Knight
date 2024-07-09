@@ -1,9 +1,5 @@
 fileFormatVersion: 2
-<<<<<<<< Updated upstream:Assets/Animations/Player/playerDash.anim.meta
 guid: 1b7e351508e71c74ea880ca22083158e
-========
-guid: 1ab466ca4429da94b930f0ffeb06bd0d
->>>>>>>> Stashed changes:Assets/Animations/Player/playerDeath.anim.meta
 NativeFormatImporter:
   externalObjects: {}
   mainObjectFileID: 7400000

@@ -17,9 +17,6 @@ AnimationClip:
   m_PositionCurves: []
   m_ScaleCurves: []
   m_FloatCurves: []
-<<<<<<< Updated upstream
-  m_PPtrCurves: []
-=======
   m_PPtrCurves:
   - serializedVersion: 2
     curve:
@@ -52,17 +49,12 @@ AnimationClip:
     classID: 212
     script: {fileID: 0}
     flags: 2
->>>>>>> Stashed changes
   m_SampleRate: 60
   m_WrapMode: 0
   m_Bounds:
     m_Center: {x: 0, y: 0, z: 0}
     m_Extent: {x: 0, y: 0, z: 0}
   m_ClipBindingConstant:
-<<<<<<< Updated upstream
-    genericBindings: []
-    pptrCurveMapping: []
-=======
     genericBindings:
     - serializedVersion: 2
       path: 0
@@ -86,17 +78,12 @@ AnimationClip:
     - {fileID: -1557029766, guid: 9df3dd2595fe5ec4890001e4e1f65678, type: 3}
     - {fileID: -1365378720, guid: 9df3dd2595fe5ec4890001e4e1f65678, type: 3}
     - {fileID: -1843091431, guid: 9df3dd2595fe5ec4890001e4e1f65678, type: 3}
->>>>>>> Stashed changes
   m_AnimationClipSettings:
     serializedVersion: 2
     m_AdditiveReferencePoseClip: {fileID: 0}
     m_AdditiveReferencePoseTime: 0
     m_StartTime: 0
-<<<<<<< Updated upstream
-    m_StopTime: 1
-=======
     m_StopTime: 0.45000002
->>>>>>> Stashed changes
     m_OrientationOffsetY: 0
     m_Level: 0
     m_CycleOffset: 0
