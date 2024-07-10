@@ -70,6 +70,8 @@ public class PlayerController : MonoBehaviour
     [Header("Health Setting")]
     public int health;
     public int maxHealth;
+    public delegate void OnHealthChangeDelegate();
+    [HideInInspector] public OnHealthChangeDelegate onHealthChangeCallBack;
     [Space(5)]
 
     // Singleton
@@ -84,7 +86,7 @@ public class PlayerController : MonoBehaviour
         {
             instance = this; // Gan instance hien tai
         }
-        health = maxHealth;
+        Health = maxHealth;
     }
 
 
@@ -105,12 +107,15 @@ public class PlayerController : MonoBehaviour
         GetInputMove(); // Lay du lieu tu ban phim
         GetInputAttack();
         UpdateJump(); // Cap nhat trang thai nhay
-        if (pState.dashing) return;
         Flip(); // Lat huong nhan vat
         Move(); // Di chuyen
         Jump(); // Thuc hien nhay
         StartDash();
         Attack();
+    }
+    private void FixedUpdate()
+    {
+        if (pState.dashing) return;
         Recoil();
     }
 
@@ -315,14 +320,13 @@ public class PlayerController : MonoBehaviour
     //TakeDamage
     public void TakeDamage(float damage)
     {
-        health -= Mathf.RoundToInt(damage);
+        Health -= Mathf.RoundToInt(damage);
         StartCoroutine(StopTakingDamage());
     }
     private IEnumerator StopTakingDamage()
     {
         pState.invincible = true;
         anim.SetTrigger("Hurting");
-        ClampHealth();
         yield return new WaitForSeconds(1f);
         pState.invincible = false;
     }
@@ -401,8 +405,20 @@ public class PlayerController : MonoBehaviour
         }
     }
     //Health
-    private void ClampHealth()
+    public int Health
     {
-        health = Mathf.Clamp(health, 0, maxHealth);
+        get{ return health; }
+        set
+        {
+            if(health != value)
+            {
+                health = Mathf.Clamp(value, 0, maxHealth);
+
+                if(onHealthChangeCallBack != null)
+                {
+                    onHealthChangeCallBack.Invoke();
+                }
+            }
+        }
     }
 }   
