@@ -45,8 +45,11 @@ TagManager:
   - name: Background
     uniqueID: 1493480735
     locked: 0
-  - name: Ground
-    uniqueID: 3801898297
+  - name: MidBackground
+    uniqueID: 815259573
+    locked: 0
+  - name: ForgeBackground
+    uniqueID: 1739709951
     locked: 0
   - name: Effect
     uniqueID: 45298107
