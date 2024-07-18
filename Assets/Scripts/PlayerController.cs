@@ -86,7 +86,7 @@ public class PlayerController : MonoBehaviour
         {
             instance = this; // Gan instance hien tai
         }
-        Health = maxHealth;
+        
     }
 
 
@@ -100,6 +100,7 @@ public class PlayerController : MonoBehaviour
         anim = GetComponent<Animator>(); // Lay component Animator
         pState = GetComponent<PlayStateList>(); // Lay component PlayStateList
         gravity = rb.gravityScale;
+        Health = maxHealth;
     }
 
     private void Update()
@@ -136,6 +137,7 @@ public class PlayerController : MonoBehaviour
             xAxis = 0; // Dung lai
         }
     }
+  
     private void GetInputAttack()
     {
         attack = Input.GetMouseButton(0);
@@ -182,11 +184,11 @@ public class PlayerController : MonoBehaviour
     //Jump
     private void Jump()
     {
-        if ((Input.GetKeyUp(KeyCode.Space) || Input.GetKeyUp(KeyCode.UpArrow)) && rb.velocity.y > 0)
+        /*if ((Input.GetKeyUp(KeyCode.Space) || Input.GetKeyUp(KeyCode.UpArrow)) && rb.velocity.y > 0)
         {
             rb.velocity = new Vector2(rb.velocity.x, 0);
             pState.jumping = false;
-        }
+        }*/
 
         if (!pState.jumping)
         {
@@ -316,6 +318,7 @@ public class PlayerController : MonoBehaviour
                     (transform.position - objectToHit[i].transform.position).normalized, recoilStrength);
             }
         }
+
     }
     //TakeDamage
     public void TakeDamage(float damage)
